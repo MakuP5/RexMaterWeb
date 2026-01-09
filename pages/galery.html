@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Favicon (calavera) -->
+  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/616/616554.png" />
+  <title>💀 Rex Mater 💀</title>
+
+  <style>
+    /* =========================
+       RESET + BASE
+       ========================= */
+    *, *::before, *::after { box-sizing: border-box; }
+    :root {
+      --bg-0: #0a0a0a;
+      --bg-1: #0d0d0f;
+      --bg-2: #121215;
+
+      --doom-red: #c91010;
+      --doom-red-weak: #8a0e0e;
+      --bone: #eaeaea;
+      --text: #d6d6d6;
+      --muted: #9a9a9a;
+      --accent: #e31b1b;
+      --glow: 0 0 24px rgba(227, 27, 27, 0.5);
+
+      --frame-bg: rgba(16, 16, 18, 0.6);
+      --frame-bg-fallback: #111116;
+
+      --card: rgba(18,18,20,0.85);
+      --stroke: #1f1f21;
+      --stroke2: #2a2a2e;
+
+      --radius: 14px;
+      --shadow: inset 0 0 30px rgba(0,0,0,0.75), 0 0 40px rgba(0,0,0,0.8);
+
+      --maxw: 1100px;
+      --pad: clamp(1.0rem, 2.5vw, 2.2rem);
+    }
+
+    html, body { height: 100%; margin: 0; }
+    body {
+      color: var(--text);
+      font-family: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background:
+        radial-gradient(1200px 600px at 30% 0%, #141416 0%, var(--bg-0) 70%),
+        linear-gradient(180deg, var(--bg-1) 0%, var(--bg-0) 100%);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      overflow-x: hidden;
+    }
+
+    /* =========================
+       DECORACIÓN
+       ========================= */
+    .noise {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      background-image:
+        radial-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+        radial-gradient(rgba(255,255,255,0.015) 1px, transparent 1px);
+      background-size: 3px 3px, 5px 5px;
+      background-position: 0 0, 1px 1px;
+      opacity: 0.6;
+      mix-blend-mode: soft-light;
+    }
+
+    .sigil {
+      position: fixed;
+      right: -12vw;
+      bottom: -12vh;
+      width: min(56vmax, 1100px);
+      height: min(56vmax, 1100px);
+      border: 2px dashed rgba(201,16,16,0.12);
+      border-radius: 50%;
+      filter: drop-shadow(0 0 50px rgba(201,16,16,0.08));
+      z-index: 0;
+      transform: rotate(8deg);
+    }
+    .sigil::before, .sigil::after {
+      content: "";
+      position: absolute;
+      inset: 12%;
+      border: 1px solid rgba(201,16,16,0.12);
+      border-radius: 50%;
+    }
+    .sigil::after { inset: 24%; border-style: dotted; }
+
+    /* =========================
+       LAYOUT
+       ========================= */
+    .wrap { position: relative; z-index: 2; }
+    .container {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: var(--pad);
+    }
+
+    /* Marco principal tipo tu "frame" */
+    .frame {
+      background: var(--frame-bg-fallback);
+      background-image: linear-gradient(180deg, rgba(20,20,22,0.6) 0%, rgba(12,12,14,0.6) 100%);
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    @supports ((backdrop-filter: blur(4px)) or (-webkit-backdrop-filter: blur(4px))) {
+      .frame {
+        background: var(--frame-bg);
+        -webkit-backdrop-filter: blur(4px);
+        backdrop-filter: blur(4px);
+      }
+    }
+    .frame::before,
+    .frame::after {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      border: 1px solid rgba(201,16,16,0.15);
+      filter: drop-shadow(var(--glow));
+      pointer-events: none;
+    }
+    .frame::after { inset: -10px; border-color: rgba(201,16,16,0.08); }
+
+    /* =========================
+       NAV
+       ========================= */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(8,8,10,0.82);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+    }
+    .nav-inner {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: .8rem var(--pad);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      text-decoration: none;
+      color: var(--bone);
+    }
+    .brand .mark {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid rgba(201,16,16,0.25);
+      background: radial-gradient(circle at 30% 20%, rgba(201,16,16,0.35), transparent 60%),
+                  linear-gradient(180deg, rgba(25,25,28,0.9), rgba(10,10,12,0.9));
+      box-shadow: 0 0 20px rgba(201,16,16,0.18);
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+    }
+    .brand .name {
+      font-family: 'UnifrakturMaguntia', "Old English Text MT", "Blackletter", serif;
+      letter-spacing: .04em;
+      color: var(--doom-red);
+      text-shadow: 0 0 12px rgba(201,16,16,0.45), -3px 2px 0 #000;
+      font-size: 1.4rem;
+      line-height: 1;
+    }
+    .menu {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .35rem;
+      justify-content: flex-end;
+    }
+    .menu a {
+      color: #cfcfcf;
+      text-decoration: none;
+      font-size: .78rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: .5rem .7rem;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      background: rgba(18,18,20,0.45);
+      transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+      white-space: nowrap;
+    }
+    .menu a:hover { transform: translateY(-1px); border-color: rgba(201,16,16,0.35); box-shadow: 0 0 18px rgba(201,16,16,0.18); }
+    .menu a.active { border-color: rgba(201,16,16,0.55); box-shadow: 0 0 24px rgba(201,16,16,0.25); color: var(--bone); }
+
+    /* Menú móvil: botón */
+    .burger {
+      display: none;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(18,18,20,0.45);
+      color: var(--bone);
+      border-radius: 12px;
+      padding: .55rem .75rem;
+      font: inherit;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    /* =========================
+       HERO
+       ========================= */
+    header.hero {
+      padding: clamp(2rem, 4vw, 3rem) var(--pad) 1.2rem;
+      text-align: center;
+    }
+    .title {
+      font-family: 'UnifrakturMaguntia', "Old English Text MT", "Blackletter", serif;
+      font-size: clamp(2.6rem, 6vw, 5.2rem);
+      line-height: 1.05;
+      letter-spacing: 0.02em;
+      color: var(--doom-red);
+      text-shadow:
+        0 0 18px rgba(201,16,16,0.55),
+        0 0 4px rgba(201,16,16,0.85),
+        -6px 4px 0 #000;
+      position: relative;
+      display: inline-block;
+      margin: 0;
+    }
+    .title::before, .title::after {
+      content: attr(data-text);
+      position: absolute;
+      left: 0; top: 0;
+      opacity: 0.35;
+      mix-blend-mode: screen;
+    }
+    .title::before { transform: translate(-1px, -1px); color: #ff0033; animation: glitch1 5s infinite linear; }
+    .title::after  { transform: translate( 1px,  1px); color: #00e5ff; animation: glitch2 4.2s infinite linear; }
+
+    @keyframes glitch1 {
+      0%, 100% { clip-path: inset(0 0 0 0); }
+      25% { clip-path: inset(5% 0 60% 0); }
+      50% { clip-path: inset(40% 0 30% 0); }
+      75% { clip-path: inset(70% 0 5% 0); }
+    }
+    @keyframes glitch2 {
+      0%, 100% { clip-path: inset(0 0 0 0); }
+      20% { clip-path: inset(10% 0 50% 0); }
+      45% { clip-path: inset(55% 0 20% 0); }
+      80% { clip-path: inset(80% 0 2% 0); }
+    }
+
+    .subtitle {
+      margin: .6rem auto 0;
+      color: var(--muted);
+      font-size: clamp(.92rem, 1.4vw, 1rem);
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      opacity: 0.88;
+      max-width: 70ch;
+    }
+
+    .divider {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--doom-red), transparent);
+      margin: 1.6rem auto 1.2rem;
+      width: min(92%, 860px);
+      filter: drop-shadow(var(--glow));
+      position: relative;
+    }
+    .divider::after {
+      content: "";
+      position: absolute;
+      left: 50%; transform: translateX(-50%);
+      top: -6px;
+      width: 10px; height: 10px;
+      background: var(--doom-red);
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(201,16,16,0.6), 0 0 20px rgba(201,16,16,0.35);
+    }
+
+    /* =========================
+       SECCIONES
+       ========================= */
+    section.block {
+      padding: 1.6rem var(--pad);
+    }
+    .section-title {
+      margin: 0 0 .8rem 0;
+      font-size: 1.05rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--bone);
+    }
+    .section-sub {
+      margin: 0 0 1.2rem 0;
+      color: var(--muted);
+      line-height: 1.65;
+      max-width: 80ch;
+    }
+
+    .grid {
+      display: grid;
+      gap: 1rem;
+    }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .card {
+      background: rgba(18,18,20,0.62);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius);
+      padding: 1rem;
+      box-shadow: inset 0 0 18px rgba(0,0,0,0.75);
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border: 1px solid rgba(201,16,16,0.12);
+      pointer-events: none;
+    }
+
+    /* =========================
+       SPOTIFY
+       ========================= */
+    .embed-wrap {
+      border: 1px solid #222326;
+      border-radius: 12px;
+      overflow: hidden;
+      background: linear-gradient(180deg, #0e0e11 0%, #0b0b0d 100%);
+      box-shadow: inset 0 0 22px rgba(0,0,0,0.8), 0 0 30px rgba(201,16,16,0.25);
+      filter: drop-shadow(var(--glow));
+      isolation: isolate;
+    }
+    .embed-wrap iframe { display: block; width: 100%; height: 352px; border: 0; }
+
+    /* =========================
+       GALERÍA (FOTOS)
+       ========================= */
+    .photo {
+      aspect-ratio: 4 / 3;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(201,16,16,0.18), transparent 60%),
+        linear-gradient(180deg, rgba(20,20,24,0.9), rgba(10,10,12,0.9));
+      position: relative;
+    }
+    .photo img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: contrast(1.05) saturate(0.95);
+      opacity: 0.92;
+    }
+    .photo .label {
+      position: absolute;
+      left: 10px; bottom: 10px;
+      padding: .35rem .6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.55);
+      color: var(--bone);
+      font-size: .78rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    /* =========================
+       POSTERS (CARTELERÍA)
+       ========================= */
+    .poster {
+      aspect-ratio: 3 / 4;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(201,16,16,0.18), transparent 45%),
+        linear-gradient(180deg, rgba(20,20,24,0.9), rgba(10,10,12,0.9));
+      position: relative;
+    }
+    .poster img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0.92; }
+    .poster .meta {
+      position: absolute;
+      inset: auto 10px 10px 10px;
+      padding: .6rem .7rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.62);
+    }
+    .poster .meta strong { color: var(--bone); display: block; font-size: .9rem; }
+    .poster .meta span { color: var(--muted); font-size: .78rem; }
+
+    /* =========================
+       FECHAS (PRÓXIMAS)
+       ========================= */
+    .show {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 1rem;
+      align-items: center;
+    }
+    .datebox {
+      border-radius: 14px;
+      border: 1px solid rgba(201,16,16,0.35);
+      background: rgba(201,16,16,0.10);
+      padding: .85rem .7rem;
+      text-align: center;
+      box-shadow: 0 0 18px rgba(201,16,16,0.12);
+    }
+    .datebox .day { font-size: 1.4rem; color: var(--bone); font-weight: 700; line-height: 1; }
+    .datebox .mon { font-size: .85rem; color: var(--muted); letter-spacing: .14em; text-transform: uppercase; margin-top: .2rem; }
+    .show .info strong { color: var(--bone); display: block; margin-bottom: .2rem; }
+    .show .info span { color: var(--muted); display: block; line-height: 1.5; }
+
+    /* =========================
+       FOOTER
+       ========================= */
+    footer.site {
+      padding: 1.6rem var(--pad) 2.2rem;
+      text-align: center;
+      color: #7e7e7e;
+      font-size: .88rem;
+      opacity: .9;
+    }
+
+    /* =========================
+       ACCESIBILIDAD + MOTION
+       ========================= */
+    a:focus-visible, button:focus-visible, iframe:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+      border-radius: 10px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .title::before, .title::after { animation: none; }
+      html { scroll-behavior: auto; }
+    }
+
+    /* =========================
+       RESPONSIVE
+       ========================= */
+    @media (max-width: 900px) {
+      .grid.three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 720px) {
+      .burger { display: inline-flex; align-items: center; gap: .5rem; }
+      .menu { display: none; width: 100%; }
+      .menu.open { display: flex; }
+      .nav-inner { flex-wrap: wrap; align-items: flex-start; }
+      .grid.two { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      .embed-wrap iframe { height: 300px; }
+      .show { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <div class="sigil" aria-hidden="true"></div>
+
+  <!-- NAV -->
+  <nav class="nav" aria-label="Menú principal">
+    <div class="nav-inner">
+      <a class="brand" href="#inicio">
+        <span class="mark">💀</span>
+        <span class="name">Rex Mater</span>
+      </a>
+
+      <button class="burger" id="burger" aria-expanded="false" aria-controls="menu">
+        ☰ menú
+      </button>
+
+      <div class="menu" id="menu">
+        <a href="#inicio">Inicio</a>
+        <a href="#historia">Historia</a>
+        <a href="#musica">Música</a>
+        <a href="#fotos">Fotos</a>
+        <a href="#carteles">Carteles</a>
+        <a href="#proximas">Próximas</a>
+        <a href="#contacto">Contacto</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <div class="container">
+      <main class="frame">
+
+        <!-- HERO / INICIO -->
+        <header class="hero" id="inicio">
+          <h1 class="title" data-text="REX MATER">REX MATER</h1>
+          <p class="subtitle">Oscuridad. Metal. Éxtasis sonoro.</p>
+          <div class="divider" aria-hidden="true"></div>
+
+          <section class="block" style="padding-top:0;">
+            <div class="card">
+              <p style="margin:0; line-height:1.7; color:#c7c7c7;">
+                Bienvenid@ a la <strong>vigilia sonora</strong>. Respira hondo, ajusta el volumen,
+                y deja que el pulso <strong>doom</strong> te envuelva.
+              </p>
+              <div style="margin-top:1rem; display:flex; flex-wrap:wrap; gap:.55rem;">
+                <span style="font-size:.78rem; padding:.35rem .6rem; border:1px solid var(--stroke2); border-radius:10px; text-transform:uppercase; letter-spacing:.1em; background:#121214;">doom</span>
+                <span style="font-size:.78rem; padding:.35rem .6rem; border:1px solid var(--stroke2); border-radius:10px; text-transform:uppercase; letter-spacing:.1em; background:#121214;">thrash</span>
+                <span style="font-size:.78rem; padding:.35rem .6rem; border:1px solid var(--stroke2); border-radius:10px; text-transform:uppercase; letter-spacing:.1em; background:#121214;">dark</span>
+                <span style="font-size:.78rem; padding:.35rem .6rem; border:1px solid var(--stroke2); border-radius:10px; text-transform:uppercase; letter-spacing:.1em; background:#121214;">metal</span>
+                <span style="font-size:.78rem; padding:.35rem .6rem; border:1px solid var(--stroke2); border-radius:10px; text-transform:uppercase; letter-spacing:.1em; background:#121214;">ritual</span>
+              </div>
+            </div>
+          </section>
+        </header>
+
+        <!-- HISTORIA -->
+        <section class="block" id="historia">
+          <h2 class="section-title">Historia</h2>
+          <p class="section-sub">
+            Escribe aquí el manifiesto / origen de la Rex Mater. (Yo te lo redacto doom-épico cuando me pases 5 ideas clave).
+          </p>
+
+          <div class="grid two">
+            <div class="card">
+              <strong style="color:var(--bone);">Origen</strong>
+              <p style="margin:.6rem 0 0; color:#c7c7c7; line-height:1.7;">
+                Texto breve sobre el nacimiento de la banda, influencias y concepto lírico.
+              </p>
+            </div>
+            <div class="card">
+              <strong style="color:var(--bone);">Sonido</strong>
+              <p style="margin:.6rem 0 0; color:#c7c7c7; line-height:1.7;">
+                Doom/thrash con atmósfera ritual, riffs pesados y energía en vivo.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- MUSICA (SPOTIFY) -->
+        <section class="block" id="musica">
+          <h2 class="section-title">Música</h2>
+          <p class="section-sub">Comparte los tracks, EP o playlist oficial. Puedes pegar más iframes y listo.</p>
+
+          <div class="grid two">
+            <div class="embed-wrap">
+              <iframe style="border-radius:12px"
+                src="https://open.spotify.com/embed/track/1icTidN5SC330ernARYc0e?utm_source=generator"
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                loading="lazy"></iframe>
+            </div>
+
+            <div class="embed-wrap">
+              <iframe style="border-radius:12px"
+                src="https://open.spotify.com/embed/track/7nehIrMqg7CGHpFzyukADq?utm_source=generator"
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                loading="lazy"></iframe>
+            </div>
+          </div>
+        </section>
+
+        <!-- FOTOS -->
+        <section class="block" id="fotos">
+          <h2 class="section-title">Fotos</h2>
+          <p class="section-sub">Pon aquí fotos de prensa, backstage, ensayos y tocadas.</p>
+
+          <div class="grid three">
+            <!-- Reemplaza src con tus imágenes -->
+            <div class="photo">
+              <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=1200&q=60" alt="Rex Mater - Foto 1">
+              <span class="label">Live</span>
+            </div>
+            <div class="photo">
+              <img src="https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=1200&q=60" alt="Rex Mater - Foto 2">
+              <span class="label">Backstage</span>
+            </div>
+            <div class="photo">
+              <img src="https://images.unsplash.com/photo-1521337706264-a414f153a5f5?auto=format&fit=crop&w=1200&q=60" alt="Rex Mater - Foto 3">
+              <span class="label">Ensayo</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- CARTELES -->
+        <section class="block" id="carteles">
+          <h2 class="section-title">Carteles de conciertos</h2>
+          <p class="section-sub">Sube tus posters oficiales y crea archivo visual de la banda.</p>
+
+          <div class="grid three">
+            <div class="poster">
+              <img src="https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?auto=format&fit=crop&w=1200&q=60" alt="Cartel 1">
+              <div class="meta">
+                <strong>Rex Mater • En Vivo</strong>
+                <span>Rock and Futbol • Tarde</span>
+              </div>
+            </div>
+            <div class="poster">
+              <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=60" alt="Cartel 2">
+              <div class="meta">
+                <strong>Noche Ritual</strong>
+                <span>Ciudad / Fecha</span>
+              </div>
+            </div>
+            <div class="poster">
+              <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=60" alt="Cartel 3">
+              <div class="meta">
+                <strong>Festival</strong>
+                <span>Lineup / Fecha</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- PRÓXIMAS -->
+        <section class="block" id="proximas">
+          <h2 class="section-title">Próximas presentaciones</h2>
+          <p class="section-sub">Lista rápida de fechas (puedes mantenerla manual o luego la hacemos dinámica con JSON).</p>
+
+          <div class="grid two">
+            <div class="card show">
+              <div class="datebox">
+                <div class="day">10</div>
+                <div class="mon">Mar</div>
+              </div>
+              <div class="info">
+                <strong>Rock and Futbol</strong>
+                <span>Presentación en la tarde • Repertorio rock + inéditos</span>
+                <span>Cuenca, Ecuador</span>
+              </div>
+            </div>
+
+            <div class="card show">
+              <div class="datebox">
+                <div class="day">--</div>
+                <div class="mon">---</div>
+              </div>
+              <div class="info">
+                <strong>Próxima fecha</strong>
+                <span>Venue / Hora</span>
+                <span>Ciudad</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- CONTACTO -->
+        <section class="block" id="contacto">
+          <h2 class="section-title">Contacto</h2>
+          <p class="section-sub">Links rápidos para booking, redes y prensa.</p>
+
+          <div class="grid two">
+            <div class="card">
+              <strong style="color:var(--bone);">Booking</strong>
+              <p style="margin:.6rem 0 0; color:#c7c7c7; line-height:1.7;">
+                Correo: <a href="mailto:booking@rexmater.com" style="color:var(--bone);">booking@rexmater.com</a><br/>
+                Instagram: <a href="#" style="color:var(--bone);">@rexmater</a>
+              </p>
+            </div>
+            <div class="card">
+              <strong style="color:var(--bone);">Press Kit</strong>
+              <p style="margin:.6rem 0 0; color:#c7c7c7; line-height:1.7;">
+                Agrega aquí un link a tu EPK (Drive / Notion) o un PDF descargable.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <footer class="site">
+          Hecho con sombras y neón rojo • Mak Muyuqi Development
+        </footer>
+
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // Scroll suave (sin romper prefers-reduced-motion)
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.documentElement.style.scrollBehavior = 'smooth';
+    }
+
+    // Menú móvil
+    const burger = document.getElementById('burger');
+    const menu = document.getElementById('menu');
+
+    burger?.addEventListener('click', () => {
+      const isOpen = menu.classList.toggle('open');
+      burger.setAttribute('aria-expanded', String(isOpen));
+    });
+
+    // Cerrar menú al hacer click en un link (móvil)
+    menu?.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        menu.classList.remove('open');
+        burger.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    // Sección activa (ScrollSpy simple)
+    const links = Array.from(menu.querySelectorAll('a'));
+    const sections = links
+      .map(a => document.querySelector(a.getAttribute('href')))
+      .filter(Boolean);
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const id = entry.target.getAttribute('id');
+        const link = links.find(a => a.getAttribute('href') === `#${id}`);
+        if (!link) return;
+
+        if (entry.isIntersecting) {
+          links.forEach(l => l.classList.remove('active'));
+          link.classList.add('active');
+        }
+      });
+    }, { rootMargin: "-40% 0px -55% 0px", threshold: 0.01 });
+
+    sections.forEach(sec => observer.observe(sec));
+  </script>
+</body>
+</html>
