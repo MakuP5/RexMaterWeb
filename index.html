@@ -4,205 +4,69 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Doom Night</title>
+  <title>Doom Night – Profe Mak</title>
 
-  <!-- Tipografías oscuras/góticas y monoespaciada para el vibe metalero -->
-  <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Roboto+Mono:wght@300;400;700&display=swap" rel="stylesheetmo */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+  <!-- Tipografías con fallback locales (si Google falla, no se rompe el estilo) -->
+  https://fonts.gstatic.com
+  https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Roboto+Mono:wght@300;400;700&display=swap
 
+  <style>
+    /* =========================
+       RESET + BASE
+       ========================= */
+    *, *::before, *::after { box-sizing: border-box; }
     :root {
-      --bg-0: #0a0a0a;        /* Fondo base */
-      --bg-1: #0d0d0f;        /* Profundidad */
-      --bg-2: #121215;        /* Sombras */
-      --doom-red: #c91010;    /* Rojo sangre */
+      --bg-0: #0a0a0a;
+      --bg-1: #0d0d0f;
+      --bg-2: #121215;
+      --doom-red: #c91010;
       --doom-red-weak: #8a0e0e;
-      --steel-gray: #8a8a8a;
       --bone: #eaeaea;
-      --accent: #e31b1b;      /* Neón */
+      --text: #d6d6d6;
+      --muted: #9a9a9a;
+      --accent: #e31b1b;
       --glow: 0 0 24px rgba(227, 27, 27, 0.5);
+      --frame-bg: rgba(16, 16, 18, 0.6);   /* semitransparente para backdrop-filter */
+      --frame-bg-fallback: #111116;        /* fallback cuando no hay soporte */
     }
-
     html, body {
       height: 100%;
-      background: radial-gradient(1200px 600px at 30% 0%, #141416 0%, var(--bg-0) 70%),
-                  linear-gradient(180deg, var(--bg-1) 0%, var(--bg-0) 100%);
-      color: #d6d6d6;
-      font-family: 'Roboto Mono', monospace;
-      overflow-x: hidden;
+      margin: 0;
+      color: var(--text);
+      font-family: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background:
+        radial-gradient(1200px 600px at 30% 0%, #141416 0%, var(--bg-0) 70%),
+        linear-gradient(180deg, var(--bg-1) 0%, var(--bg-0) 100%);
+      /* Suavizado de fuentes cross-browser */
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
     }
 
-    /* Grano/noise sutil */
+    /* =========================
+       DECORACIÓN SEGURA
+       ========================= */
     .noise {
       position: fixed;
       inset: 0;
       pointer-events: none;
-      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.04"/></svg>');
-      mix-blend-mode: soft-light;
       z-index: 1;
+      /* PNG procedural con opacidad baja (más compatible que SVG filter en móviles) */
+      background-image:
+        radial-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+        radial-gradient(rgba(255,255,255,0.015) 1px, transparent 1px);
+      background-size: 3px 3px, 5px 5px;
+      background-position: 0 0, 1px 1px;
+      opacity: 0.6;
+      mix-blend-mode: soft-light;
     }
 
-    /* Bordes y acentos tipo metal */
-    .frame {
-      position: relative;
-      margin: 0 auto;
-      max-width: 980px;
-      padding: 2.2rem;
-      border: 1px solid #1f1f21;
-      background: linear-gradient(180deg, rgba(20,20,22,0.6) 0%, rgba(12,12,14,0.6) 100%);
-      backdrop-filter: blur(2px);
-      box-shadow:
-        inset 0 0 30px rgba(0,0,0,0.75),
-        0 0 40px rgba(0,0,0,0.8);
-      z-index: 2;
-    }
-
-    .frame::before,
-    .frame::after {
-      content: "";
-      position: absolute;
-      inset: -2px;
-      border: 1px solid rgba(201,16,16,0.15);
-      filter: drop-shadow(var(--glow));
-      pointer-events: none;
-    }
-    .frame::after {
-      inset: -8px;
-      border-color: rgba(201,16,16,0.08);
-    }
-
-    header {
-      text-align: center;
-      margin-bottom: 1.6rem;
-    }
-
-    .title {
-      font-family: 'UnifrakturMaguntia', serif;
-      font-size: clamp(2.6rem, 6vw, 5rem);
-      line-height: 1;
-      letter-spacing: 0.02em;
-      color: var(--doom-red);
-      text-shadow:
-        0 0 18px rgba(201,16,16,0.55),
-        0 0 4px rgba(201,16,16,0.85),
-        -6px 4px 0 #000;
-      position: relative;
-      display: inline-block;
-    }
-
-    /* Efecto glitch suave */
-    .title::before, .title::after {
-      content: attr(data-text);
-      position: absolute;
-      left: 0; top: 0;
-      opacity: 0.35;
-      mix-blend-mode: screen;
-    }
-    .title::before {
-      transform: translate(-1px, -1px);
-      color: #ff0033;
-      animation: glitch1 5s infinite linear;
-    }
-    .title::after {
-      transform: translate(1px, 1px);
-      color: #00e5ff;
-      animation: glitch2 4.2s infinite linear;
-    }
-    @keyframes glitch1 {
-      0%, 100% { clip-path: inset(0 0 0 0); }
-      25% { clip-path: inset(5% 0 60% 0); }
-      50% { clip-path: inset(40% 0 30% 0); }
-      75% { clip-path: inset(70% 0 5% 0); }
-    }
-    @keyframes glitch2 {
-      0%, 100% { clip-path: inset(0 0 0 0); }
-      20% { clip-path: inset(10% 0 50% 0); }
-      45% { clip-path: inset(55% 0 20% 0); }
-      80% { clip-path: inset(80% 0 2% 0); }
-    }
-
-    .subtitle {
-      margin-top: 0.6rem;
-      color: #bfbfbf;
-      font-size: 0.95rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      opacity: 0.8;
-    }
-
-    /* Divider sangriento */
-    .divider {
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--doom-red), transparent);
-      margin: 1.8rem auto 2.2rem;
-      width: 80%;
-      filter: drop-shadow(var(--glow));
-      position: relative;
-    }
-    .divider::after {
-      content: "";
-      position: absolute;
-      left: 50%; transform: translateX(-50%);
-      top: -6px;
-      width: 10px; height: 10px;
-      background: var(--doom-red);
-      border-radius: 50%;
-      box-shadow:
-        0 0 8px rgba(201,16,16,0.6),
-        0 0 20px rgba(201,16,16,0.35);
-    }
-
-    /* Contenedor del iframe con marco */
-    .embed-wrap {
-      border: 1px solid #222326;
-      border-radius: 12px;
-      overflow: hidden;
-      background: linear-gradient(180deg, #0e0e11 0%, #0b0b0d 100%);
-      box-shadow:
-        inset 0 0 22px rgba(0,0,0,0.8),
-        0 0 30px rgba(201,16,16,0.25);
-      filter: drop-shadow(var(--glow));
-    }
-
-    /* Texto y detalles */
-    .copy {
-      margin-top: 1.6rem;
-      color: #b9b9b9;
-      line-height: 1.6;
-    }
-    .copy strong { color: var(--bone); }
-    .tags {
-      margin-top: 1rem;
-      display: flex;
-      gap: .6rem;
-      flex-wrap: wrap;
-    }
-    .tag {
-      font-size: .78rem;
-      padding: .35rem .6rem;
-      border: 1px solid #2a2a2e;
-      color: #cfcfcf;
-      background: #121214;
-      border-radius: 6px;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-    }
-
-    /* Footer con ascii oscuro */
-    footer {
-      margin-top: 2.2rem;
-      color: #7e7e7e;
-      font-size: .85rem;
-      text-align: center;
-      opacity: .75;
-    }
-
-    /* Fondo decorativo: runas y pentagrama sutil */
     .sigil {
       position: fixed;
-      right: -10vw;
-      bottom: -10vh;
-      width: 50vmax;
-      height: 50vmax;
+      right: -12vw;
+      bottom: -12vh;
+      width: min(56vmax, 1100px);
+      height: min(56vmax, 1100px);
       border: 2px dashed rgba(201,16,16,0.12);
       border-radius: 50%;
       filter: drop-shadow(0 0 50px rgba(201,16,16,0.08));
@@ -221,17 +85,177 @@
       border-style: dotted;
     }
 
-    /* Responsivo */
-    @media (max-width: 640px) {
-      .frame { padding: 1.2rem; }
-      .subtitle { font-size: 0.85rem; }
-      .copy { font-size: 0.95rem; }
+    /* =========================
+       CONTENEDOR/MARCO
+       ========================= */
+    .frame {
+      position: relative;
+      margin: 0 auto;
+      max-width: 980px;
+      padding: clamp(1.2rem, 2.5vw, 2.4rem);
+      /* Fallback sólido + capa semitransparente para backdrop */
+      background: var(--frame-bg-fallback);
+      background-image: linear-gradient(180deg, rgba(20,20,22,0.6) 0%, rgba(12,12,14,0.6) 100%);
+      border: 1px solid #1f1f21;
+      box-shadow:
+        inset 0 0 30px rgba(0,0,0,0.75),
+        0 0 40px rgba(0,0,0,0.8);
+      z-index: 2;
+    }
+    /* Aplica blur cuando hay soporte (no rompe en Safari/Android viejos) */
+    @supports ((backdrop-filter: blur(4px)) or (-webkit-backdrop-filter: blur(4px))) {
+      .frame {
+        background: var(--frame-bg);
+        -webkit-backdrop-filter: blur(4px);
+        backdrop-filter: blur(4px);
+      }
+    }
+    .frame::before,
+    .frame::after {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      border: 1px solid rgba(201,16,16,0.15);
+      filter: drop-shadow(var(--glow));
+      pointer-events: none;
+    }
+    .frame::after {
+      inset: -8px;
+      border-color: rgba(201,16,16,0.08);
     }
 
-    /* Focus visible para accesibilidad */
+    /* =========================
+       CABECERA/TÍTULO
+       ========================= */
+    header { text-align: center; margin-bottom: 1.4rem; }
+    .title {
+      font-family: 'UnifrakturMaguntia', "Old English Text MT", "Blackletter", serif;
+      font-size: clamp(2.4rem, 6vw, 5rem);
+      line-height: 1.05;
+      letter-spacing: 0.02em;
+      color: var(--doom-red);
+      text-shadow:
+        0 0 18px rgba(201,16,16,0.55),
+        0 0 4px rgba(201,16,16,0.85),
+        -6px 4px 0 #000;
+      position: relative;
+      display: inline-block;
+    }
+    /* Glitch accesible y suave (se desactiva con reduced-motion) */
+    .title::before, .title::after {
+      content: attr(data-text);
+      position: absolute;
+      left: 0; top: 0;
+      opacity: 0.35;
+      mix-blend-mode: screen;
+    }
+    .title::before { transform: translate(-1px, -1px); color: #ff0033; animation: glitch1 5s infinite linear; }
+    .title::after  { transform: translate( 1px,  1px); color: #00e5ff; animation: glitch2 4.2s infinite linear; }
+
+    @keyframes glitch1 {
+      0%, 100% { clip-path: inset(0 0 0 0); }
+      25% { clip-path: inset(5% 0 60% 0); }
+      50% { clip-path: inset(40% 0 30% 0); }
+      75% { clip-path: inset(70% 0 5% 0); }
+    }
+    @keyframes glitch2 {
+      0%, 100% { clip-path: inset(0 0 0 0); }
+      20% { clip-path: inset(10% 0 50% 0); }
+      45% { clip-path: inset(55% 0 20% 0); }
+      80% { clip-path: inset(80% 0 2% 0); }
+    }
+
+    .subtitle {
+      margin-top: 0.6rem;
+      color: var(--muted);
+      font-size: clamp(.88rem, 1.4vw, .98rem);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+
+    .divider {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--doom-red), transparent);
+      margin: 1.6rem auto 2rem;
+      width: min(92%, 760px);
+      filter: drop-shadow(var(--glow));
+      position: relative;
+    }
+    .divider::after {
+      content: "";
+      position: absolute;
+      left: 50%; transform: translateX(-50%);
+      top: -6px;
+      width: 10px; height: 10px;
+      background: var(--doom-red);
+      border-radius: 50%;
+      box-shadow:
+        0 0 8px rgba(201,16,16,0.6),
+        0 0 20px rgba(201,16,16,0.35);
+    }
+
+    /* =========================
+       EMBED / IFRAME
+       ========================= */
+    .embed-wrap {
+      border: 1px solid #222326;
+      border-radius: 12px;
+      overflow: hidden;                 /* Necesario para respetar el border-radius del iframe */
+      background: linear-gradient(180deg, #0e0e11 0%, #0b0b0d 100%);
+      box-shadow:
+        inset 0 0 22px rgba(0,0,0,0.8),
+        0 0 30px rgba(201,16,16,0.25);
+      filter: drop-shadow(var(--glow));
+      isolation: isolate;               /* Evita blending raro con overlays */
+    }
+    /* Asegura que el iframe se renderice al 100% del contenedor */
+    .embed-wrap iframe {
+      display: block;
+      width: 100%;
+      height: 352px;                    /* puedes ajustar si lo quieres más compacto */
+      border: 0;
+    }
+
+    /* =========================
+       COPY / TAGS
+       ========================= */
+    .copy { margin-top: 1.6rem; color: #c7c7c7; line-height: 1.65; }
+    .copy strong { color: var(--bone); }
+    .tags { margin-top: 1rem; display: flex; gap: .6rem; flex-wrap: wrap; }
+    .tag {
+      font-size: .78rem;
+      padding: .35rem .6rem;
+      border: 1px solid #2a2a2e;
+      color: #cfcfcf;
+      background: #121214;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    footer { margin-top: 2rem; color: #7e7e7e; font-size: .85rem; text-align: center; opacity: .8; }
+
+    /* =========================
+       ACCESIBILIDAD
+       ========================= */
     a:focus-visible, button:focus-visible, iframe:focus-visible {
       outline: 2px solid var(--accent);
       outline-offset: 3px;
+      border-radius: 8px;
+    }
+
+    /* Menos animación si el usuario lo prefiere */
+    @media (prefers-reduced-motion: reduce) {
+      .title::before, .title::after { animation: none; }
+    }
+
+    /* =========================
+       RESPONSIVE
+       ========================= */
+    @media (max-width: 640px) {
+      .copy { font-size: .97rem; }
+      .embed-wrap iframe { height: 300px; }
     }
   </style>
 </head>
@@ -249,11 +273,15 @@
 
     <section aria-label="Reproductor">
       <div class="embed-wrap">
-        <!-- IFRAME QUE ME PASASTE -->
-        <iframe data-testid="embed-iframe" style="border-radius:12px"
-          src="https://open.spotify.com/embed/track/7nehIrMqg7CGHpFzyukADq?utm_source=generator"
-          width="100%" height="352" frameBorder="0"
-         . Respira hondo, ajusta el volumen,
+        <!-- Spotify IFRAME -->
+        https://open.spotify.com/embed/track/7nehIrMqg7CGHpFzyukADq?utm_source=generator
+        </iframe>
+      </div>
+    </section>
+
+    <section class="copy">
+      <p>
+        Bienvenid@ a la <strong>vigilia sonora</strong>. Respira hondo, ajusta el volumen,
         y deja que el pulso <strong>doom</strong> te envuelva.
       </p>
       <div class="tags">
@@ -265,7 +293,7 @@
     </section>
 
     <footer>
-      <p>Hecho con sombras y neon rojo • Profe Mak × Copi</p>
+      <p>Hecho con sombras y neón rojo • Profe Mak × Copi</p>
     </footer>
   </main>
 </body>
