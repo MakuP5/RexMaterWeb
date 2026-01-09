@@ -1,0 +1,272 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Doom Night</title>
+
+  <!-- Tipografías oscuras/góticas y monoespaciada para el vibe metalero -->
+  <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Roboto+Mono:wght@300;400;700&display=swap" rel="stylesheetmo */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-0: #0a0a0a;        /* Fondo base */
+      --bg-1: #0d0d0f;        /* Profundidad */
+      --bg-2: #121215;        /* Sombras */
+      --doom-red: #c91010;    /* Rojo sangre */
+      --doom-red-weak: #8a0e0e;
+      --steel-gray: #8a8a8a;
+      --bone: #eaeaea;
+      --accent: #e31b1b;      /* Neón */
+      --glow: 0 0 24px rgba(227, 27, 27, 0.5);
+    }
+
+    html, body {
+      height: 100%;
+      background: radial-gradient(1200px 600px at 30% 0%, #141416 0%, var(--bg-0) 70%),
+                  linear-gradient(180deg, var(--bg-1) 0%, var(--bg-0) 100%);
+      color: #d6d6d6;
+      font-family: 'Roboto Mono', monospace;
+      overflow-x: hidden;
+    }
+
+    /* Grano/noise sutil */
+    .noise {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.04"/></svg>');
+      mix-blend-mode: soft-light;
+      z-index: 1;
+    }
+
+    /* Bordes y acentos tipo metal */
+    .frame {
+      position: relative;
+      margin: 0 auto;
+      max-width: 980px;
+      padding: 2.2rem;
+      border: 1px solid #1f1f21;
+      background: linear-gradient(180deg, rgba(20,20,22,0.6) 0%, rgba(12,12,14,0.6) 100%);
+      backdrop-filter: blur(2px);
+      box-shadow:
+        inset 0 0 30px rgba(0,0,0,0.75),
+        0 0 40px rgba(0,0,0,0.8);
+      z-index: 2;
+    }
+
+    .frame::before,
+    .frame::after {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      border: 1px solid rgba(201,16,16,0.15);
+      filter: drop-shadow(var(--glow));
+      pointer-events: none;
+    }
+    .frame::after {
+      inset: -8px;
+      border-color: rgba(201,16,16,0.08);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 1.6rem;
+    }
+
+    .title {
+      font-family: 'UnifrakturMaguntia', serif;
+      font-size: clamp(2.6rem, 6vw, 5rem);
+      line-height: 1;
+      letter-spacing: 0.02em;
+      color: var(--doom-red);
+      text-shadow:
+        0 0 18px rgba(201,16,16,0.55),
+        0 0 4px rgba(201,16,16,0.85),
+        -6px 4px 0 #000;
+      position: relative;
+      display: inline-block;
+    }
+
+    /* Efecto glitch suave */
+    .title::before, .title::after {
+      content: attr(data-text);
+      position: absolute;
+      left: 0; top: 0;
+      opacity: 0.35;
+      mix-blend-mode: screen;
+    }
+    .title::before {
+      transform: translate(-1px, -1px);
+      color: #ff0033;
+      animation: glitch1 5s infinite linear;
+    }
+    .title::after {
+      transform: translate(1px, 1px);
+      color: #00e5ff;
+      animation: glitch2 4.2s infinite linear;
+    }
+    @keyframes glitch1 {
+      0%, 100% { clip-path: inset(0 0 0 0); }
+      25% { clip-path: inset(5% 0 60% 0); }
+      50% { clip-path: inset(40% 0 30% 0); }
+      75% { clip-path: inset(70% 0 5% 0); }
+    }
+    @keyframes glitch2 {
+      0%, 100% { clip-path: inset(0 0 0 0); }
+      20% { clip-path: inset(10% 0 50% 0); }
+      45% { clip-path: inset(55% 0 20% 0); }
+      80% { clip-path: inset(80% 0 2% 0); }
+    }
+
+    .subtitle {
+      margin-top: 0.6rem;
+      color: #bfbfbf;
+      font-size: 0.95rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.8;
+    }
+
+    /* Divider sangriento */
+    .divider {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--doom-red), transparent);
+      margin: 1.8rem auto 2.2rem;
+      width: 80%;
+      filter: drop-shadow(var(--glow));
+      position: relative;
+    }
+    .divider::after {
+      content: "";
+      position: absolute;
+      left: 50%; transform: translateX(-50%);
+      top: -6px;
+      width: 10px; height: 10px;
+      background: var(--doom-red);
+      border-radius: 50%;
+      box-shadow:
+        0 0 8px rgba(201,16,16,0.6),
+        0 0 20px rgba(201,16,16,0.35);
+    }
+
+    /* Contenedor del iframe con marco */
+    .embed-wrap {
+      border: 1px solid #222326;
+      border-radius: 12px;
+      overflow: hidden;
+      background: linear-gradient(180deg, #0e0e11 0%, #0b0b0d 100%);
+      box-shadow:
+        inset 0 0 22px rgba(0,0,0,0.8),
+        0 0 30px rgba(201,16,16,0.25);
+      filter: drop-shadow(var(--glow));
+    }
+
+    /* Texto y detalles */
+    .copy {
+      margin-top: 1.6rem;
+      color: #b9b9b9;
+      line-height: 1.6;
+    }
+    .copy strong { color: var(--bone); }
+    .tags {
+      margin-top: 1rem;
+      display: flex;
+      gap: .6rem;
+      flex-wrap: wrap;
+    }
+    .tag {
+      font-size: .78rem;
+      padding: .35rem .6rem;
+      border: 1px solid #2a2a2e;
+      color: #cfcfcf;
+      background: #121214;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    /* Footer con ascii oscuro */
+    footer {
+      margin-top: 2.2rem;
+      color: #7e7e7e;
+      font-size: .85rem;
+      text-align: center;
+      opacity: .75;
+    }
+
+    /* Fondo decorativo: runas y pentagrama sutil */
+    .sigil {
+      position: fixed;
+      right: -10vw;
+      bottom: -10vh;
+      width: 50vmax;
+      height: 50vmax;
+      border: 2px dashed rgba(201,16,16,0.12);
+      border-radius: 50%;
+      filter: drop-shadow(0 0 50px rgba(201,16,16,0.08));
+      z-index: 0;
+      transform: rotate(8deg);
+    }
+    .sigil::before, .sigil::after {
+      content: "";
+      position: absolute;
+      inset: 12%;
+      border: 1px solid rgba(201,16,16,0.12);
+      border-radius: 50%;
+    }
+    .sigil::after {
+      inset: 24%;
+      border-style: dotted;
+    }
+
+    /* Responsivo */
+    @media (max-width: 640px) {
+      .frame { padding: 1.2rem; }
+      .subtitle { font-size: 0.85rem; }
+      .copy { font-size: 0.95rem; }
+    }
+
+    /* Focus visible para accesibilidad */
+    a:focus-visible, button:focus-visible, iframe:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+  </style>
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <div class="sigil" aria-hidden="true"></div>
+
+  <main class="frame">
+    <header>
+      <h1 class="title" data-text="DOOM NIGHT">DOOM NIGHT</h1>
+      <p class="subtitle">Oscuridad. Metal. Éxtasis sonoro.</p>
+    </header>
+
+    <div class="divider" aria-hidden="true"></div>
+
+    <section aria-label="Reproductor">
+      <div class="embed-wrap">
+        <!-- IFRAME QUE ME PASASTE -->
+        <iframe data-testid="embed-iframe" style="border-radius:12px"
+          src="https://open.spotify.com/embed/track/7nehIrMqg7CGHpFzyukADq?utm_source=generator"
+          width="100%" height="352" frameBorder="0"
+         . Respira hondo, ajusta el volumen,
+        y deja que el pulso <strong>doom</strong> te envuelva.
+      </p>
+      <div class="tags">
+        <span class="tag">doom</span>
+        <span class="tag">dark</span>
+        <span class="tag">metal</span>
+        <span class="tag">ritual</span>
+      </div>
+    </section>
+
+    <footer>
+      <p>Hecho con sombras y neon rojo • Profe Mak × Copi</p>
+    </footer>
+  </main>
+</body>
+</html>
