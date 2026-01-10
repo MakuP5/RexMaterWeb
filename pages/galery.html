@@ -971,7 +971,6 @@
   const nextBtn = root.querySelector('.btn.next');
   const dots = Array.from(root.querySelectorAll('.dot'));
 
-  const caption = root.querySelector('#rmCaption');
   const capTitle = root.querySelector('#rmCaptionTitle');
   const capText  = root.querySelector('#rmCaptionText');
 
@@ -979,33 +978,48 @@
 
   let index = 0;
   let timer = null;
-  let isPointerDown = false;
-  let startX = 0;
-  let deltaX = 0;
 
-  // Blur-up: marcar imágenes cargadas
-  slides.forEach(s => {
+  // Swipe
+  let isDown = false;
+  let startX = 0;
+  let startY = 0;
+  let deltaX = 0;
+  let deltaY = 0;
+
+  // Si una imagen no carga, deja evidencia en consola y no “rompe”
+  slides.forEach((s, i) => {
     const img = s.querySelector('img');
     if (!img) return;
-    if (img.complete) img.classList.add('is-loaded');
-    else img.addEventListener('load', () => img.classList.add('is-loaded'), { once: true });
+
+    const markLoaded = () => img.classList.add('is-loaded');
+    if (img.complete && img.naturalWidth > 0) markLoaded();
+    else img.addEventListener('load', markLoaded, { once: true });
+
+    img.addEventListener('error', () => {
+      console.warn(`[RexMater Carousel] No se pudo cargar imagen ${i + 1}:`, img.src);
+      // fallback visual
+      img.style.display = "none";
+      s.style.background =
+        "radial-gradient(circle at 30% 20%, rgba(201,16,16,0.18), transparent 60%)," +
+        "linear-gradient(180deg, rgba(20,20,24,0.92), rgba(10,10,12,0.92))";
+    }, { once: true });
   });
 
   const setActive = (i) => {
-    index = (i + slides.length) % slides.length;
+    const n = slides.length;
+    if (n === 0) return;
+
+    index = (i + n) % n;
 
     slides.forEach((s, si) => s.classList.toggle('is-active', si === index));
     dots.forEach((d, di) => d.classList.toggle('is-active', di === index));
 
-    // Caption desde data-attrs
+    // Caption
     const s = slides[index];
     const t = s.getAttribute('data-caption-title') || '';
     const x = s.getAttribute('data-caption-text') || '';
     if (capTitle) capTitle.textContent = t;
     if (capText) capText.textContent = x;
-
-    // Accesibilidad: aria-live suave (solo cambia texto)
-    if (caption) caption.setAttribute('aria-hidden', 'false');
   };
 
   const next = () => setActive(index + 1);
@@ -1013,16 +1027,15 @@
 
   prevBtn?.addEventListener('click', prev);
   nextBtn?.addEventListener('click', next);
-
   dots.forEach((dot, di) => dot.addEventListener('click', () => setActive(di)));
 
-  // Teclado: flechas
+  // Teclado
   root.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
     if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
   });
 
-  // Autoplay inteligente
+  // Autoplay
   const startAutoplay = () => {
     if (prefersReduced) return;
     if (timer) return;
@@ -1034,35 +1047,42 @@
     timer = null;
   };
 
-  // Pausa en hover/focus
   root.addEventListener('mouseenter', stopAutoplay);
   root.addEventListener('mouseleave', startAutoplay);
   root.addEventListener('focusin', stopAutoplay);
   root.addEventListener('focusout', startAutoplay);
 
-  // Pausa si la pestaña no está visible
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) stopAutoplay();
     else startAutoplay();
   });
 
-  // Swipe/touch + pointer events
-  const onDown = (e) => {
-    isPointerDown = true;
-    startX = e.clientX ?? (e.touches && e.touches[0]?.clientX) ?? 0;
+  // Swipe: detecta intención (horizontal vs vertical)
+  const down = (clientX, clientY) => {
+    isDown = true;
+    startX = clientX;
+    startY = clientY;
     deltaX = 0;
+    deltaY = 0;
     stopAutoplay();
   };
-  const onMove = (e) => {
-    if (!isPointerDown) return;
-    const x = e.clientX ?? (e.touches && e.touches[0]?.clientX) ?? 0;
-    deltaX = x - startX;
-  };
-  const onUp = () => {
-    if (!isPointerDown) return;
-    isPointerDown = false;
 
-    // Umbral de swipe
+  const move = (clientX, clientY) => {
+    if (!isDown) return;
+    deltaX = clientX - startX;
+    deltaY = clientY - startY;
+  };
+
+  const up = () => {
+    if (!isDown) return;
+    isDown = false;
+
+    // si el gesto fue más vertical que horizontal, no cambies slide
+    if (Math.abs(deltaY) > Math.abs(deltaX)) {
+      startAutoplay();
+      return;
+    }
+
     const threshold = 40;
     if (deltaX > threshold) prev();
     else if (deltaX < -threshold) next();
@@ -1071,15 +1091,29 @@
   };
 
   // Touch
-  root.addEventListener('touchstart', onDown, { passive: true });
-  root.addEventListener('touchmove', onMove, { passive: true });
-  root.addEventListener('touchend', onUp);
+  root.addEventListener('touchstart', (e) => {
+    const t = e.touches?.[0];
+    if (!t) return;
+    down(t.clientX, t.clientY);
+  }, { passive: true });
 
-  // Mouse (pointer)
-  root.addEventListener('pointerdown', (e) => { root.setPointerCapture?.(e.pointerId); onDown(e); });
-  root.addEventListener('pointermove', onMove);
-  root.addEventListener('pointerup', onUp);
-  root.addEventListener('pointercancel', onUp);
+  root.addEventListener('touchmove', (e) => {
+    const t = e.touches?.[0];
+    if (!t) return;
+    move(t.clientX, t.clientY);
+  }, { passive: true });
+
+  root.addEventListener('touchend', up);
+
+  // Pointer (mouse)
+  root.addEventListener('pointerdown', (e) => {
+    root.setPointerCapture?.(e.pointerId);
+    down(e.clientX, e.clientY);
+  });
+
+  root.addEventListener('pointermove', (e) => move(e.clientX, e.clientY));
+  root.addEventListener('pointerup', up);
+  root.addEventListener('pointercancel', up);
 
   // Init
   setActive(0);
