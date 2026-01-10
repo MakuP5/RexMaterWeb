@@ -53,6 +53,186 @@
       overflow-x: hidden;
     }
 
+/* =========================
+   CAROUSEL PRO (CROSSFADE + BLUR-UP)
+   ========================= */
+.rm-carousel {
+  margin: 1.2rem var(--pad) 0;
+}
+
+.rm-carousel .shell {
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(20,20,24,0.9), rgba(10,10,12,0.9));
+  box-shadow: inset 0 0 22px rgba(0,0,0,0.82), 0 0 34px rgba(201,16,16,0.18);
+  isolation: isolate;
+}
+
+.rm-carousel .slides {
+  position: relative;
+  aspect-ratio: 16 / 7;
+  min-height: 240px;
+}
+
+.rm-carousel .slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 520ms ease;
+}
+
+.rm-carousel .slide.is-active {
+  opacity: 1;
+}
+
+.rm-carousel .slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+
+  /* blur-up */
+  filter: blur(14px) contrast(1.05) saturate(0.95);
+  transform: scale(1.03);
+  opacity: 0.88;
+  transition: filter 650ms ease, transform 650ms ease, opacity 650ms ease;
+}
+
+.rm-carousel .slide img.is-loaded {
+  filter: blur(0px) contrast(1.05) saturate(0.95);
+  transform: scale(1.00);
+  opacity: 0.94;
+}
+
+/* overlay doom */
+.rm-carousel .slide::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(201,16,16,0.18), transparent 55%),
+    linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.55));
+  pointer-events: none;
+}
+
+/* caption (opcional) */
+.rm-carousel .caption {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  max-width: min(70ch, calc(100% - 28px));
+  padding: .55rem .7rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.58);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.rm-carousel .caption strong {
+  display: block;
+  color: var(--bone);
+  font-size: .9rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.rm-carousel .caption span {
+  display: block;
+  color: var(--muted);
+  font-size: .8rem;
+  margin-top: .15rem;
+  line-height: 1.45;
+}
+
+/* controls */
+.rm-carousel .btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.55);
+  color: var(--bone);
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  cursor: pointer;
+  user-select: none;
+  display: grid;
+  place-items: center;
+  transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease, opacity .15s ease;
+  z-index: 3;
+}
+.rm-carousel .btn:hover {
+  border-color: rgba(201,16,16,0.35);
+  box-shadow: 0 0 18px rgba(201,16,16,0.18);
+  transform: translateY(-50%) scale(1.02);
+}
+.rm-carousel .btn:active { transform: translateY(-50%) scale(0.98); }
+.rm-carousel .btn.prev { left: 10px; }
+.rm-carousel .btn.next { right: 10px; }
+
+/* dots */
+.rm-carousel .dots {
+  position: absolute;
+  left: 0; right: 0; bottom: 12px;
+  display: flex;
+  justify-content: center;
+  gap: .45rem;
+  z-index: 3;
+}
+.rm-carousel .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.12);
+  cursor: pointer;
+  transition: transform .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+.rm-carousel .dot:hover { transform: scale(1.06); }
+.rm-carousel .dot.is-active {
+  background: rgba(201,16,16,0.65);
+  border-color: rgba(201,16,16,0.85);
+  box-shadow: 0 0 14px rgba(201,16,16,0.25);
+}
+
+/* small top label */
+.rm-carousel .badge {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  z-index: 3;
+  padding: .35rem .55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.48);
+  color: var(--bone);
+  font-size: .75rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+/* focus visible */
+.rm-carousel .btn:focus-visible,
+.rm-carousel .dot:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .rm-carousel .slide { transition: none; }
+  .rm-carousel .slide img { transition: none; }
+}
+
+/* responsive */
+@media (max-width: 720px) {
+  .rm-carousel .slides { aspect-ratio: 16 / 9; }
+  .rm-carousel .caption { right: 14px; }
+}
+
+    
     /* =========================
        DECORACIÓN
        ========================= */
@@ -521,6 +701,57 @@
           </section>
         </header>
 
+
+
+<!-- CAROUSEL PRO (ANTES DE HISTORIA) -->
+<section class="rm-carousel" aria-label="Carrusel Rex Mater">
+  <div class="shell" id="rmCarouselPro" tabindex="0" aria-roledescription="carousel" aria-label="Galería Rex Mater">
+    <div class="badge">Rex Mater</div>
+
+    <div class="slides" aria-live="polite">
+      <figure class="slide is-active" data-caption-title="Vigilia sonora" data-caption-text="Sombras, neón rojo y riffs pesados.">
+        <img src="img/carousel/01.jpg" alt="Rex Mater - Imagen 1" loading="eager" decoding="async">
+      </figure>
+
+      <figure class="slide" data-caption-title="Live ritual" data-caption-text="Energía en vivo. Doom/Thrash.">
+        <img src="img/carousel/02.jpg" alt="Rex Mater - Imagen 2" loading="lazy" decoding="async">
+      </figure>
+
+      <figure class="slide" data-caption-title="El trono" data-caption-text="La Rex Mater observa.">
+        <img src="img/carousel/03.jpg" alt="Rex Mater - Imagen 3" loading="lazy" decoding="async">
+      </figure>
+
+      <figure class="slide" data-caption-title="Cartelería" data-caption-text="Archivo visual de conciertos.">
+        <img src="img/carousel/04.jpg" alt="Rex Mater - Imagen 4" loading="lazy" decoding="async">
+      </figure>
+
+      <figure class="slide" data-caption-title="El castillo doom" data-caption-text="Donde nace el ruido sagrado.">
+        <img src="img/carousel/05.jpg" alt="Rex Mater - Imagen 5" loading="lazy" decoding="async">
+      </figure>
+
+      <!-- Caption -->
+      <div class="caption" id="rmCaption" aria-hidden="false">
+        <strong id="rmCaptionTitle">Vigilia sonora</strong>
+        <span id="rmCaptionText">Sombras, neón rojo y riffs pesados.</span>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <button class="btn prev" type="button" aria-label="Imagen anterior">‹</button>
+    <button class="btn next" type="button" aria-label="Imagen siguiente">›</button>
+
+    <!-- Dots -->
+    <div class="dots" aria-label="Indicadores del carrusel">
+      <button class="dot is-active" type="button" aria-label="Ir a imagen 1"></button>
+      <button class="dot" type="button" aria-label="Ir a imagen 2"></button>
+      <button class="dot" type="button" aria-label="Ir a imagen 3"></button>
+      <button class="dot" type="button" aria-label="Ir a imagen 4"></button>
+      <button class="dot" type="button" aria-label="Ir a imagen 5"></button>
+    </div>
+  </div>
+</section>
+
+        
         <!-- HISTORIA -->
         <section class="block" id="historia">
           <h2 class="section-title">Historia</h2>
@@ -723,6 +954,139 @@
     }, { rootMargin: "-40% 0px -55% 0px", threshold: 0.01 });
 
     sections.forEach(sec => observer.observe(sec));
+
+// =========================
+// CAROUSEL PRO — Rex Mater
+// - Crossfade
+// - Autoplay inteligente (pausa hover/focus/hidden)
+// - Swipe/touch + teclado
+// - Lazy + blur-up (cuando carga quita blur)
+// =========================
+(() => {
+  const root = document.getElementById('rmCarouselPro');
+  if (!root) return;
+
+  const slides = Array.from(root.querySelectorAll('.slide'));
+  const prevBtn = root.querySelector('.btn.prev');
+  const nextBtn = root.querySelector('.btn.next');
+  const dots = Array.from(root.querySelectorAll('.dot'));
+
+  const caption = root.querySelector('#rmCaption');
+  const capTitle = root.querySelector('#rmCaptionTitle');
+  const capText  = root.querySelector('#rmCaptionText');
+
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let index = 0;
+  let timer = null;
+  let isPointerDown = false;
+  let startX = 0;
+  let deltaX = 0;
+
+  // Blur-up: marcar imágenes cargadas
+  slides.forEach(s => {
+    const img = s.querySelector('img');
+    if (!img) return;
+    if (img.complete) img.classList.add('is-loaded');
+    else img.addEventListener('load', () => img.classList.add('is-loaded'), { once: true });
+  });
+
+  const setActive = (i) => {
+    index = (i + slides.length) % slides.length;
+
+    slides.forEach((s, si) => s.classList.toggle('is-active', si === index));
+    dots.forEach((d, di) => d.classList.toggle('is-active', di === index));
+
+    // Caption desde data-attrs
+    const s = slides[index];
+    const t = s.getAttribute('data-caption-title') || '';
+    const x = s.getAttribute('data-caption-text') || '';
+    if (capTitle) capTitle.textContent = t;
+    if (capText) capText.textContent = x;
+
+    // Accesibilidad: aria-live suave (solo cambia texto)
+    if (caption) caption.setAttribute('aria-hidden', 'false');
+  };
+
+  const next = () => setActive(index + 1);
+  const prev = () => setActive(index - 1);
+
+  prevBtn?.addEventListener('click', prev);
+  nextBtn?.addEventListener('click', next);
+
+  dots.forEach((dot, di) => dot.addEventListener('click', () => setActive(di)));
+
+  // Teclado: flechas
+  root.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
+  });
+
+  // Autoplay inteligente
+  const startAutoplay = () => {
+    if (prefersReduced) return;
+    if (timer) return;
+    timer = setInterval(next, 5200);
+  };
+  const stopAutoplay = () => {
+    if (!timer) return;
+    clearInterval(timer);
+    timer = null;
+  };
+
+  // Pausa en hover/focus
+  root.addEventListener('mouseenter', stopAutoplay);
+  root.addEventListener('mouseleave', startAutoplay);
+  root.addEventListener('focusin', stopAutoplay);
+  root.addEventListener('focusout', startAutoplay);
+
+  // Pausa si la pestaña no está visible
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stopAutoplay();
+    else startAutoplay();
+  });
+
+  // Swipe/touch + pointer events
+  const onDown = (e) => {
+    isPointerDown = true;
+    startX = e.clientX ?? (e.touches && e.touches[0]?.clientX) ?? 0;
+    deltaX = 0;
+    stopAutoplay();
+  };
+  const onMove = (e) => {
+    if (!isPointerDown) return;
+    const x = e.clientX ?? (e.touches && e.touches[0]?.clientX) ?? 0;
+    deltaX = x - startX;
+  };
+  const onUp = () => {
+    if (!isPointerDown) return;
+    isPointerDown = false;
+
+    // Umbral de swipe
+    const threshold = 40;
+    if (deltaX > threshold) prev();
+    else if (deltaX < -threshold) next();
+
+    startAutoplay();
+  };
+
+  // Touch
+  root.addEventListener('touchstart', onDown, { passive: true });
+  root.addEventListener('touchmove', onMove, { passive: true });
+  root.addEventListener('touchend', onUp);
+
+  // Mouse (pointer)
+  root.addEventListener('pointerdown', (e) => { root.setPointerCapture?.(e.pointerId); onDown(e); });
+  root.addEventListener('pointermove', onMove);
+  root.addEventListener('pointerup', onUp);
+  root.addEventListener('pointercancel', onUp);
+
+  // Init
+  setActive(0);
+  startAutoplay();
+})();
+
+    
   </script>
 </body>
 </html>
